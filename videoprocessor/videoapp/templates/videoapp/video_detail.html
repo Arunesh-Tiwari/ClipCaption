@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ video.title }}</title>
+</head>
+<body>
+    <h1>{{ video.title }}</h1>
+    <video controls width="640">
+        <source src="{{ video.video_file.url }}" type="video/mp4">
+        {% if subtitle_file_url %}
+            <track kind="subtitles" srclang="en" label="English" src="{{ subtitle_file_url }}" default>
+        {% endif %}
+        Your browser does not support the video tag.
+    </video>
+    <h2>Subtitles:</h2>
+    <ul>
+        {% for subtitle in subtitles %}
+            <li>{{ subtitle }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

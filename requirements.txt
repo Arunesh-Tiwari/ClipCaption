@@ -1,0 +1,9 @@
+# Django for backend
+Django>=4.2,<5.0
+
+# PostgreSQL database adapter for Django
+psycopg2>=2.9,<3.0
+
+# ffmpeg-python for working with ffmpeg
+ffmpeg-python>=0.2.0
+
