@@ -13,4 +13,5 @@ urlpatterns = [
     
     # URL for searching subtitles within a video
     path('search/', views.search_subtitle, name='search_subtitle'),
+    path('search_subtitle/', views.search_subtitle, name='search_subtitle'),
 ]
