@@ -43,24 +43,42 @@ def parse_vtt(vtt_content):
 
 def video_detail(request, video_id):
     video = get_object_or_404(Video, id=video_id)
-    
+
     # Generate subtitle file URL (in VTT format)
     subtitle_filename = f"{os.path.splitext(os.path.basename(video.video_file.name))[0]}.vtt"
     subtitle_file_path = os.path.join(settings.MEDIA_ROOT, 'subtitles', subtitle_filename)
     subtitle_file_url = os.path.join(settings.MEDIA_URL, 'subtitles', subtitle_filename)
-    print("subtitle_filename=",subtitle_filename)
-    print("subtitle_file_path=",subtitle_file_path)
-    print("subtitle_file_url=",subtitle_file_url)
-
     
     # Check if the subtitle file exists
     if not os.path.exists(subtitle_file_path):
         subtitle_file_url = None
 
+    # Fetch subtitles for the video and convert timestamp to seconds
+    subtitles = Subtitle.objects.filter(video=video)
+    subtitle_data = []
+    for subtitle in subtitles:
+        subtitle_data.append({
+            'timestamp': subtitle.timestamp,
+            'content': subtitle.content,
+            'timestamp_in_seconds': time_string_to_seconds(subtitle.timestamp)
+        })
+
     return render(request, 'videoapp/video_detail.html', {
         'video': video,
-        'subtitle_file_url': subtitle_file_url
+        'subtitle_file_url': subtitle_file_url,
+        'subtitles': subtitle_data
     })
+
+# Helper function to convert VTT timestamp to seconds
+def time_string_to_seconds(time_string):
+    parts = time_string.split(':')
+    seconds = 0
+    if len(parts) == 3:  # Hours:Minutes:Seconds
+        seconds += int(parts[0]) * 3600  # Hours to seconds
+    if len(parts) >= 2:  # Minutes:Seconds
+        seconds += int(parts[-2]) * 60  # Minutes to seconds
+        seconds += float(parts[-1])  # Seconds
+    return seconds
 
 # Adding search functionality
 def search_subtitle(request):
@@ -73,10 +91,12 @@ def search_subtitle(request):
         if query.lower() in subtitle.content.lower():
             matches.append({
                 'timestamp': subtitle.timestamp,
-                'content': subtitle.content
+                'content': subtitle.content,
+                'timestamp_in_seconds': time_string_to_seconds(subtitle.timestamp)
             })
 
     return JsonResponse(matches, safe=False)
+
 
 def video_list(request):
     videos = Video.objects.all()

@@ -1,30 +1,131 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ video.title }}</title>
+    <style>
+        /* Scrollable container for subtitles */
+        .subtitle-container {
+            max-height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .subtitle-container ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .subtitle-container li {
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .subtitle-container li:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Highlight matching subtitle */
+        .highlight {
+            background-color: #ffeb3b; /* Highlight color */
+        }
+    </style>
+    <script>
+        // Function to jump to a specific timestamp in the video
+        function jumpToTime(seconds) {
+            var video = document.getElementById('video-player');
+            video.currentTime = seconds;
+            video.play();
+        }
+
+        // Function to highlight search results
+        function highlightSubtitles(query) {
+            const subtitleList = document.querySelector('.subtitle-container ul');
+            const subtitles = subtitleList.querySelectorAll('li');
+            subtitles.forEach(subtitle => {
+                if (subtitle.textContent.toLowerCase().includes(query.toLowerCase())) {
+                    subtitle.classList.add('highlight');
+                } else {
+                    subtitle.classList.remove('highlight');
+                }
+            });
+
+            // Scroll highlighted subtitle into view
+            const highlighted = subtitleList.querySelector('.highlight');
+            if (highlighted) {
+                highlighted.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        // Handle subtitle search form submission
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('searchForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const query = document.getElementById('searchInput').value;
+
+                // Fetch the search results from the server
+                fetch(`/search_subtitle?q=${query}&video_id={{ video.id }}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const resultsList = document.getElementById('subtitle-results');
+                        resultsList.innerHTML = '';  // Clear previous results
+
+                        // Display the search results
+                        data.forEach(sub => {
+                            const li = document.createElement('li');
+                            li.innerHTML = `${sub.timestamp}: ${sub.content}`;
+                            li.onclick = () => jumpToTime(sub.timestamp_in_seconds);
+                            resultsList.appendChild(li);
+                        });
+
+                        // Highlight matching subtitles in the main subtitle list
+                        highlightSubtitles(query);
+                    });
+            });
+        });
+    </script>
 </head>
 <body>
     <h1>{{ video.title }}</h1>
-    <!-- <video controls width="640">
-        <source src="{{ video.video_file.url }}" type="video/mp4">
-        {% if subtitle_file_url %}
-            <track kind="subtitles" srclang="en" label="English" src="{{ subtitle_file_url }}" default>
-        {% endif %}
-        Your browser does not support the video tag.
-    </video> -->
-    <video controls>
+    
+    <!-- Video player -->
+    <video id="video-player" controls>
         <source src="{{ video.video_file.url }}" type="video/mp4">
         <track src="{{ subtitle_file_url }}" kind="subtitles" srclang="en" label="English">
         Your browser does not support the video tag.
-      </video>
-      
-    <h2>Subtitles:</h2>
-    <ul>
-        {% for subtitle in subtitles %}
-            <li>{{ subtitle.timestamp }}: {{ subtitle.content }}</li>
-        {% empty %}
-            <li>No subtitles available.</li>
-        {% endfor %}
+    </video>
+    
+    <h2>Search Subtitles:</h2>
+    
+    <!-- Search form -->
+    <form id="searchForm">
+        <input type="text" id="searchInput" placeholder="Search subtitles..." />
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Search results -->
+    <ul id="subtitle-results">
+        <!-- Searched subtitles will appear here -->
     </ul>
+
+    <h2>Subtitles:</h2>
+    
+    <!-- Scrollable div for subtitles -->
+    <div class="subtitle-container">
+        <ul>
+            {% for subtitle in subtitles %}
+                <li onclick="jumpToTime({{ subtitle.timestamp_in_seconds }})">
+                    {{ subtitle.timestamp }}: {{ subtitle.content }}
+                </li>
+            {% empty %}
+                <li>No subtitles available.</li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
