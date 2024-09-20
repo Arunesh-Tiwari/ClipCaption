@@ -2,10 +2,9 @@
 ### Video Demostration of working project ⬇️
 [Video Demonstration.webm](https://github.com/user-attachments/assets/360e340d-b947-4416-aa47-0697e521091c)
 
-### ⚠️ **Note:** 
-> After setup visit `http://127.0.0.1:8000/upload` in your web browser to view the project. <br> You can either use docker or below guide to setup project in your machine.
-#
-## For docker setup
+### You can either use docker or below guide to setup project in your machine.
+
+## Project Setup Using Docker
 ```bash
 cd your-folder
 git clone https://github.com/Arunesh-Tiwari/ClipCaption.git
@@ -18,6 +17,8 @@ docker-compose up --build
 ```bash
 docker-compose up --build
 ```
+Visit `http://127.0.0.1:8000/upload` in your web browser to view the project.
+
 ## Django Project Setup Guide
 
 This guide will help you set up and run the Django project locally on your Windows machine. The project uses PostgreSQL 14 for the database and requires ffmpeg to be installed.
@@ -118,12 +119,13 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Visit `http://127.0.0.1:8000/upload` in your web browser to view the project.
+### ⚠️ **Note:** After setup visit `http://127.0.0.1:8000/upload` in your web browser to view the project.
 
 ## Troubleshooting
 
 - **Database Connection Issues**: Double-check the database credentials in `settings.py`.
 - **ffmpeg Not Found**: Ensure ffmpeg is installed and its path is added to the system PATH.
+- **Connection Error During Migrate `docker-compose up --build`**: Rerun `docker-compose up --build` or `docker-compose up`.
 
 ## License
 
