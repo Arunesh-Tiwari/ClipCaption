@@ -14,6 +14,10 @@ Navigate to root directory and run.
 ```bash
 docker-compose up --build
 ```
+### It may happen after running docker compose command migrations not happen and error is caused. To resolve this rerun below command.
+```bash
+docker-compose up --build
+```
 ## Django Project Setup Guide
 
 This guide will help you set up and run the Django project locally on your Windows machine. The project uses PostgreSQL 14 for the database and requires ffmpeg to be installed.
